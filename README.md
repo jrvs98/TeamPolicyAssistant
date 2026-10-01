@@ -53,6 +53,13 @@ The AI provider defaults to `none`, so setup does not require a paid API. Config
 
 Keycloak imports a development realm with the `admin` and `employee` roles. The test users are `admin.user` / `admin_dev_only` and `employee.user` / `employee_dev_only`. These credentials are for local development only.
 
+The initial document management endpoints are admin-only:
+
+- `POST /api/v1/documents` uploads a PDF or Markdown file to `data/uploads`.
+- `GET /api/v1/documents` lists uploaded documents and their processing status.
+
+Uploads are limited to 10 MB by default. RabbitMQ ingestion and OCR processing will consume documents in the next implementation step.
+
 ## Roadmap slices
 
 1. Add database migrations and authentication.

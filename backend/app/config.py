@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     keycloak_audience: str | None = None
     ai_provider: str = "none"
     ai_api_key: str | None = None
+    upload_dir: str = "data/uploads"
+    max_upload_bytes: int = 10_000_000
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

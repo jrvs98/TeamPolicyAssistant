@@ -9,7 +9,9 @@ __pycache__/
 node_modules/
 dist/
 coverage/
-data/
+data/*
+!data/
+!data/.gitkeep
 postgres-data/
 rabbitmq-data/
 keycloak-data/
