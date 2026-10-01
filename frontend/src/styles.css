@@ -1,0 +1,19 @@
+:root {
+  color: #172126;
+  background: #f3efe5;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+body { margin: 0; }
+
+.shell {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 12vh 9vw;
+  background: radial-gradient(circle at 80% 15%, #d8e5d5 0, transparent 32%), #f3efe5;
+}
+
+.eyebrow { color: #1f6b5c; font: 700 0.75rem/1.2 sans-serif; letter-spacing: 0.14em; }
+h1 { max-width: 780px; margin: 2rem 0 1rem; font-size: clamp(3rem, 8vw, 7rem); line-height: 0.95; font-weight: 500; }
+.intro { max-width: 540px; font-size: 1.25rem; line-height: 1.5; }
+.status { display: inline-block; margin-top: 2rem; padding: 0.8rem 1rem; border-left: 4px solid #d36b3d; background: #fffaf0; font: 0.9rem/1.3 sans-serif; }
