@@ -27,6 +27,9 @@ source .venv/bin/activate
 pip install -e '.[dev]'
 pytest
 uvicorn app.main:app --reload
+
+# From the repository root, apply database migrations
+alembic -c alembic.ini upgrade head
 ```
 
 In another terminal:
