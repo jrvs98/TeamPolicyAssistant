@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 
+import app.main as main_module
 from app.main import app
 
 client = TestClient(app)
@@ -12,11 +13,20 @@ def test_health() -> None:
     assert response.json() == {"status": "ok"}
 
 
-def test_readiness() -> None:
+def test_readiness(monkeypatch) -> None:
+    monkeypatch.setattr(main_module, "check_database", lambda: True)
     response = client.get("/ready")
 
     assert response.status_code == 200
     assert response.json()["status"] == "ready"
+
+
+def test_readiness_reports_database_failure(monkeypatch) -> None:
+    monkeypatch.setattr(main_module, "check_database", lambda: False)
+    response = client.get("/ready")
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == "Database is unavailable"
 
 
 def test_protected_endpoint_requires_bearer_token() -> None:

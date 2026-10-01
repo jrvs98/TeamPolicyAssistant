@@ -1,7 +1,8 @@
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException, status
 
 from app.auth import CurrentUser, require_admin, require_authenticated, require_employee
 from app.config import get_settings
+from app.database import check_database
 
 settings = get_settings()
 app = FastAPI(title=settings.app_name, version="0.1.0")
@@ -14,6 +15,11 @@ def health() -> dict[str, str]:
 
 @app.get("/ready")
 def ready() -> dict[str, str]:
+    if not check_database():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database is unavailable",
+        )
     return {"status": "ready", "environment": settings.environment}
 
 
