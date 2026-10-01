@@ -48,7 +48,7 @@ async def upload_document(
 ) -> Document:
     _validate_upload(file)
     settings = get_settings()
-    upload_dir = Path(settings.upload_dir)
+    upload_dir = settings.upload_path
     upload_dir.mkdir(parents=True, exist_ok=True)
     document_id = uuid.uuid4()
     storage_key = f"{document_id}{Path(file.filename or '').suffix.lower()}"
