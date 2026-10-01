@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { listDocuments, type DocumentRecord, uploadDocument } from "./api";
+import { listDocuments, retryDocument, type DocumentRecord, uploadDocument } from "./api";
 
 export function DocumentManager() {
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
@@ -34,6 +34,20 @@ export function DocumentManager() {
     }
   }
 
+  async function handleRetry(documentId: string) {
+    setBusy(true);
+    setMessage(undefined);
+    try {
+      await retryDocument(documentId);
+      setMessage("Document queued for reprocessing.");
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Retry failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <section className="document-panel">
       <div>
@@ -51,6 +65,9 @@ export function DocumentManager() {
           <div className="document-row" key={document.id}>
             <strong>{document.filename}</strong>
             <span>{document.status}</span>
+            {(document.status === "uploaded" || document.status === "failed") && (
+              <button className="row-action" disabled={busy} onClick={() => void handleRetry(document.id)} type="button">Retry</button>
+            )}
           </div>
         ))}
       </div>

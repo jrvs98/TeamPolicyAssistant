@@ -35,3 +35,7 @@ export function uploadDocument(file: File): Promise<DocumentRecord> {
   formData.append("file", file);
   return request<DocumentRecord>("/api/v1/documents", { method: "POST", body: formData });
 }
+
+export function retryDocument(documentId: string): Promise<DocumentRecord> {
+  return request<DocumentRecord>(`/api/v1/documents/${documentId}/retry`, { method: "POST" });
+}

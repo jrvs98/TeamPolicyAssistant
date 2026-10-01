@@ -25,6 +25,17 @@ class DocumentResponse(BaseModel):
     status: DocumentStatus
 
 
+async def _publish_document(document: Document) -> None:
+    await publish_document_uploaded(
+        DocumentUploadedEvent.create(
+            document_id=document.id,
+            storage_key=document.storage_key,
+            filename=document.filename,
+            content_type=document.content_type,
+        )
+    )
+
+
 def _validate_upload(file: UploadFile) -> None:
     suffix = Path(file.filename or "").suffix.lower()
     if file.content_type not in ALLOWED_TYPES and suffix not in ALLOWED_SUFFIXES:
@@ -74,20 +85,13 @@ async def upload_document(
         filename=Path(file.filename or storage_key).name,
         content_type=file.content_type or "application/octet-stream",
         storage_key=storage_key,
-        status=DocumentStatus.uploaded,
+        status=DocumentStatus.queued,
         uploaded_by=user.id,
     )
     session.add(document)
     session.commit()
     session.refresh(document)
-    await publish_document_uploaded(
-        DocumentUploadedEvent.create(
-            document_id=document.id,
-            storage_key=document.storage_key,
-            filename=document.filename,
-            content_type=document.content_type,
-        )
-    )
+    await _publish_document(document)
     return document
 
 
@@ -97,3 +101,20 @@ def list_documents(
     session: Session = Depends(get_db),
 ) -> list[Document]:
     return list(session.scalars(select(Document).order_by(Document.created_at.desc())))
+
+
+@router.post("/{document_id}/retry", response_model=DocumentResponse)
+async def retry_document(
+    document_id: uuid.UUID,
+    _: CurrentUser = Depends(require_admin),
+    session: Session = Depends(get_db),
+) -> Document:
+    document = session.get(Document, document_id)
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    document.status = DocumentStatus.queued
+    document.failure_reason = None
+    session.commit()
+    session.refresh(document)
+    await _publish_document(document)
+    return document

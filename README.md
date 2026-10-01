@@ -57,6 +57,7 @@ The initial document management endpoints are admin-only:
 
 - `POST /api/v1/documents` uploads a PDF or Markdown file to `data/uploads`.
 - `GET /api/v1/documents` lists uploaded documents and their processing status.
+- `POST /api/v1/documents/{id}/retry` republishes an uploaded or failed document.
 
 Uploads are limited to 10 MB by default. RabbitMQ ingestion and OCR processing will consume documents in the next implementation step.
 

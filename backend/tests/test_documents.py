@@ -31,3 +31,9 @@ def test_document_uploaded_event_has_versioned_contract() -> None:
 
     assert event.event_type == "document.uploaded.v1"
     assert event.model_dump()["filename"] == "policy.pdf"
+
+
+def test_document_retry_requires_admin_authentication() -> None:
+    response = client.post("/api/v1/documents/11111111-1111-1111-1111-111111111111/retry")
+
+    assert response.status_code == 401

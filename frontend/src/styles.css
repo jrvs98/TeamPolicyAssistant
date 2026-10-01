@@ -36,3 +36,4 @@ h1 { max-width: 780px; margin: 2rem 0 1rem; font-size: clamp(3rem, 8vw, 7rem); l
 .document-list { margin-top: 1.5rem; border-top: 1px solid #c5c0b4; }
 .document-row { display: flex; justify-content: space-between; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid #d8d1c3; font: 0.9rem sans-serif; }
 .document-row span { color: #1f6b5c; text-transform: uppercase; }
+.row-action { border: 1px solid #c5c0b4; padding: 0.45rem 0.7rem; color: #172126; background: transparent; }
