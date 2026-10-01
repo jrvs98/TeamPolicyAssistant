@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { useEffect, useState } from "react";
 
 import { getRoles, getUsername, initializeAuthentication, login, logout } from "./auth";
+import { DocumentManager } from "./DocumentManager";
 import "./styles.css";
 
 function App({ authenticated }: { authenticated: boolean }) {
@@ -34,6 +35,7 @@ function App({ authenticated }: { authenticated: boolean }) {
         <h1>Ask what your policy actually says.</h1>
         <p className="intro">Welcome, {getUsername() ?? "team member"}. Your protected workspace is ready for policy search.</p>
         <div className="status">Authentication: connected to Keycloak</div>
+        {roles.includes("admin") && <DocumentManager />}
       </section>
     </main>
   );

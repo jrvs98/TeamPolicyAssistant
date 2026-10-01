@@ -13,6 +13,12 @@ def test_health() -> None:
     assert response.json() == {"status": "ok"}
 
 
+def test_cors_allows_frontend_origin() -> None:
+    response = client.get("/health", headers={"Origin": "http://localhost:5173"})
+
+    assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
 def test_readiness(monkeypatch) -> None:
     monkeypatch.setattr(main_module, "check_database", lambda: True)
     response = client.get("/ready")

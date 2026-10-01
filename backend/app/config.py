@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     ai_api_key: str | None = None
     upload_dir: str = "data/uploads"
     max_upload_bytes: int = 10_000_000
+    frontend_origin: str = "http://localhost:5173"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

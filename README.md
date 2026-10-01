@@ -60,6 +60,10 @@ The initial document management endpoints are admin-only:
 
 Uploads are limited to 10 MB by default. RabbitMQ ingestion and OCR processing will consume documents in the next implementation step.
 
+After signing in as `admin.user`, the frontend displays the document library and upload form. The frontend calls the API at `VITE_API_URL` (default: `http://localhost:8000`) and sends the Keycloak access token automatically.
+
+RabbitMQ publishes `document.uploaded.v1` events to the durable `policy.events` exchange and `policy.document-ingestion` queue. Start the ingestion worker locally with `python worker.py` from the `backend` directory.
+
 ## Roadmap slices
 
 1. Add database migrations and authentication.

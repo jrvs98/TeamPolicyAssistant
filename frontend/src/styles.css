@@ -27,3 +27,12 @@ h1 { max-width: 780px; margin: 2rem 0 1rem; font-size: clamp(3rem, 8vw, 7rem); l
 .primary-action { color: #fffaf0; background: #1f6b5c; }
 .secondary-action { color: #172126; background: #fffaf0; border: 1px solid #c5c0b4; }
 .hint { margin-top: 1rem; color: #59645e; font: 0.85rem/1.4 sans-serif; }
+.document-panel { max-width: 760px; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #c5c0b4; }
+.document-panel h2 { margin: 0.4rem 0; font-size: 2rem; font-weight: 500; }
+.panel-copy { margin: 0; font: 0.95rem/1.5 sans-serif; color: #59645e; }
+.upload-form { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-top: 1.5rem; }
+.upload-form input { max-width: 100%; font: 0.9rem sans-serif; }
+.primary-action:disabled { cursor: wait; opacity: 0.6; }
+.document-list { margin-top: 1.5rem; border-top: 1px solid #c5c0b4; }
+.document-row { display: flex; justify-content: space-between; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid #d8d1c3; font: 0.9rem sans-serif; }
+.document-row span { color: #1f6b5c; text-transform: uppercase; }

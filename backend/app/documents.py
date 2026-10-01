@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session
 from app.auth import CurrentUser, require_admin
 from app.config import get_settings
 from app.database import get_db
+from app.events import DocumentUploadedEvent
+from app.messaging import publish_document_uploaded
 from app.models import Document, DocumentStatus, User
 
 router = APIRouter(prefix="/api/v1/documents", tags=["documents"])
@@ -78,6 +80,14 @@ async def upload_document(
     session.add(document)
     session.commit()
     session.refresh(document)
+    await publish_document_uploaded(
+        DocumentUploadedEvent.create(
+            document_id=document.id,
+            storage_key=document.storage_key,
+            filename=document.filename,
+            content_type=document.content_type,
+        )
+    )
     return document
 
 
