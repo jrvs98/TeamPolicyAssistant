@@ -17,3 +17,16 @@ def test_readiness() -> None:
 
     assert response.status_code == 200
     assert response.json()["status"] == "ready"
+
+
+def test_protected_endpoint_requires_bearer_token() -> None:
+    response = client.get("/api/v1/me")
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid or missing access token"
+
+
+def test_protected_endpoint_rejects_malformed_token() -> None:
+    response = client.get("/api/v1/me", headers={"Authorization": "Bearer not-a-jwt"})
+
+    assert response.status_code == 401

@@ -11,10 +11,15 @@ class Settings(BaseSettings):
     keycloak_url: str = "http://localhost:8080"
     keycloak_realm: str = "team-policy"
     keycloak_client_id: str = "policy-web"
+    keycloak_audience: str | None = None
     ai_provider: str = "none"
     ai_api_key: str | None = None
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @property
+    def keycloak_issuer(self) -> str:
+        return f"{self.keycloak_url.rstrip('/')}/realms/{self.keycloak_realm}"
 
 
 @lru_cache

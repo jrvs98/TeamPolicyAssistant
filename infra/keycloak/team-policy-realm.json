@@ -1,0 +1,39 @@
+{
+  "realm": "team-policy",
+  "enabled": true,
+  "registrationAllowed": false,
+  "roles": {
+    "realm": [
+      { "name": "admin", "description": "Can manage policy documents and evaluations" },
+      { "name": "employee", "description": "Can ask policy questions and submit feedback" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "policy-web",
+      "name": "Team Policy Assistant Web",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:5173/*"],
+      "webOrigins": ["http://localhost:5173"]
+    }
+  ],
+  "users": [
+    {
+      "username": "admin.user",
+      "enabled": true,
+      "email": "admin.user@example.test",
+      "credentials": [{ "type": "password", "value": "admin_dev_only", "temporary": false }],
+      "realmRoles": ["admin"]
+    },
+    {
+      "username": "employee.user",
+      "enabled": true,
+      "email": "employee.user@example.test",
+      "credentials": [{ "type": "password", "value": "employee_dev_only", "temporary": false }],
+      "realmRoles": ["employee"]
+    }
+  ]
+}

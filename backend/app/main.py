@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 
+from app.auth import CurrentUser, require_admin, require_authenticated, require_employee
 from app.config import get_settings
 
 settings = get_settings()
@@ -17,5 +18,15 @@ def ready() -> dict[str, str]:
 
 
 @app.get("/api/v1/me")
-def current_user() -> dict[str, str | None]:
-    return {"role": None, "subject": None, "status": "authentication_pending"}
+def current_user(user: CurrentUser = Depends(require_authenticated)) -> dict[str, object]:
+    return {"subject": user.subject, "username": user.username, "roles": sorted(user.roles)}
+
+
+@app.get("/api/v1/admin/ping")
+def admin_ping(user: CurrentUser = Depends(require_admin)) -> dict[str, str]:
+    return {"status": "ok", "subject": user.subject}
+
+
+@app.get("/api/v1/employee/ping")
+def employee_ping(user: CurrentUser = Depends(require_employee)) -> dict[str, str]:
+    return {"status": "ok", "subject": user.subject}

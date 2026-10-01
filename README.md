@@ -47,6 +47,8 @@ Services:
 
 The AI provider defaults to `none`, so setup does not require a paid API. Configure a provider only when implementing the RAG workflow.
 
+Keycloak imports a development realm with the `admin` and `employee` roles. The test users are `admin.user` / `admin_dev_only` and `employee.user` / `employee_dev_only`. These credentials are for local development only.
+
 ## Roadmap slices
 
 1. Add database migrations and authentication.
