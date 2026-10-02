@@ -37,3 +37,11 @@ h1 { max-width: 780px; margin: 2rem 0 1rem; font-size: clamp(3rem, 8vw, 7rem); l
 .document-row { display: flex; justify-content: space-between; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid #d8d1c3; font: 0.9rem sans-serif; }
 .document-row span { color: #1f6b5c; text-transform: uppercase; }
 .row-action { border: 1px solid #c5c0b4; padding: 0.45rem 0.7rem; color: #172126; background: transparent; }
+.search-panel { max-width: 760px; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #c5c0b4; }
+.search-panel h2 { margin: 0.4rem 0; font-size: 2rem; font-weight: 500; }
+.question-form { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+.question-form input { flex: 1 1 360px; min-width: 0; border: 1px solid #b9b2a5; padding: 0.9rem; color: #172126; background: #fffaf0; font: 1rem Georgia, "Times New Roman", serif; }
+.search-results { margin-top: 1.5rem; border-top: 1px solid #c5c0b4; }
+.result-row { padding: 1.25rem 0; border-bottom: 1px solid #d8d1c3; }
+.result-row p { margin: 0.65rem 0; font: 1rem/1.55 Georgia, "Times New Roman", serif; }
+.result-meta, .result-row small { color: #1f6b5c; font: 700 0.7rem/1.3 sans-serif; letter-spacing: 0.08em; text-transform: uppercase; }

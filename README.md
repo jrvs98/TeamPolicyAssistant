@@ -67,6 +67,8 @@ The ingestion worker reads Markdown and PDFs, normalizes and chunks their text, 
 
 Authenticated users can search indexed policy chunks with `POST /api/v1/questions/search` using `{"query":"remote work","limit":5}`. Results include the matching text, source filename, page number when available, and vector distance. Answer generation and SSE streaming are the next layer.
 
+The authenticated frontend now includes this policy search panel for both employees and administrators. It displays ranked source passages and citation metadata; it does not generate an answer yet.
+
 RabbitMQ publishes `document.uploaded.v1` events to the durable `policy.events` exchange and `policy.document-ingestion` queue. Start the ingestion worker locally with `python worker.py` from the `backend` directory.
 
 ## Roadmap slices

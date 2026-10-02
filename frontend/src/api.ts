@@ -9,6 +9,15 @@ export type DocumentRecord = {
   status: string;
 };
 
+export type SearchResult = {
+  chunk_id: string;
+  document_id: string;
+  filename: string;
+  page_number: number | null;
+  content: string;
+  distance: number;
+};
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const token = getAccessToken();
   const response = await fetch(`${apiUrl}${path}`, {
@@ -38,4 +47,12 @@ export function uploadDocument(file: File): Promise<DocumentRecord> {
 
 export function retryDocument(documentId: string): Promise<DocumentRecord> {
   return request<DocumentRecord>(`/api/v1/documents/${documentId}/retry`, { method: "POST" });
+}
+
+export function searchPolicy(query: string): Promise<SearchResult[]> {
+  return request<SearchResult[]>("/api/v1/questions/search", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query, limit: 5 }),
+  });
 }
