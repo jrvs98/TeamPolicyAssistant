@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     upload_dir: str = "data/uploads"
     max_upload_bytes: int = 10_000_000
     frontend_origin: str = "http://localhost:5173"
+    embedding_provider: str = "local"
+    embedding_dimensions: int = 1536
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

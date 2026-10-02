@@ -6,6 +6,7 @@ from sqlalchemy import select
 
 from app.config import get_settings
 from app.database import SessionLocal
+from app.embeddings import embed_texts
 from app.ingestion import chunk_text, extract_text
 from app.messaging import declare_ingestion_queue, parse_document_uploaded
 from app.models import Document, DocumentChunk, DocumentStatus
@@ -36,6 +37,10 @@ async def process_message(message: aio_pika.IncomingMessage) -> None:
                 ]
                 if not chunks:
                     raise ValueError("No text could be extracted from document")
+                session.query(DocumentChunk).filter(DocumentChunk.document_id == document.id).delete()
+                embeddings = embed_texts([chunk.content for chunk in chunks])
+                for chunk, embedding in zip(chunks, embeddings, strict=True):
+                    chunk.embedding = embedding
                 session.add_all(chunks)
                 document.status = DocumentStatus.indexed
                 document.failure_reason = None

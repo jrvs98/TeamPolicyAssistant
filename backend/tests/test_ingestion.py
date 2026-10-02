@@ -3,6 +3,7 @@ from pathlib import Path
 import fitz
 from PIL import Image, ImageDraw
 
+from app.embeddings import embed_texts
 from app.ingestion import chunk_text, extract_text
 
 
@@ -47,3 +48,11 @@ def test_scanned_pdf_uses_ocr(tmp_path: Path) -> None:
 
     assert pages[0][0] == 1
     assert "Remote work" in pages[0][1]
+
+
+def test_local_embeddings_are_normalized_and_fixed_length() -> None:
+    embeddings = embed_texts(["Remote work is allowed.", "Remote work is allowed."])
+
+    assert len(embeddings) == 2
+    assert len(embeddings[0]) == 1536
+    assert embeddings[0] == embeddings[1]

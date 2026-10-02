@@ -63,7 +63,7 @@ Uploads are limited to 10 MB by default. RabbitMQ ingestion and OCR processing w
 
 After signing in as `admin.user`, the frontend displays the document library and upload form. The frontend calls the API at `VITE_API_URL` (default: `http://localhost:8000`) and sends the Keycloak access token automatically.
 
-The ingestion worker reads Markdown and PDFs, normalizes and chunks their text, stores chunks in PostgreSQL, and changes the document status to `indexed`. Image-only PDF pages use local Tesseract OCR; empty or unreadable documents become `failed` with a stored failure reason. Embeddings are deferred to a later step. Local OCR requires the Tesseract executable, while the backend Dockerfile installs it automatically.
+The ingestion worker reads Markdown and PDFs, normalizes and chunks their text, stores chunks and 1536-dimensional local development embeddings in PostgreSQL, and changes the document status to `indexed`. Image-only PDF pages use local Tesseract OCR; empty or unreadable documents become `failed` with a stored failure reason. The local embedder is deterministic and keeps setup free; it is a development placeholder for a semantic model provider. Local OCR requires the Tesseract executable, while the backend Dockerfile installs it automatically.
 
 RabbitMQ publishes `document.uploaded.v1` events to the durable `policy.events` exchange and `policy.document-ingestion` queue. Start the ingestion worker locally with `python worker.py` from the `backend` directory.
 
