@@ -65,6 +65,8 @@ After signing in as `admin.user`, the frontend displays the document library and
 
 The ingestion worker reads Markdown and PDFs, normalizes and chunks their text, stores chunks and 1536-dimensional local development embeddings in PostgreSQL, and changes the document status to `indexed`. Image-only PDF pages use local Tesseract OCR; empty or unreadable documents become `failed` with a stored failure reason. The local embedder is deterministic and keeps setup free; it is a development placeholder for a semantic model provider. Local OCR requires the Tesseract executable, while the backend Dockerfile installs it automatically.
 
+Authenticated users can search indexed policy chunks with `POST /api/v1/questions/search` using `{"query":"remote work","limit":5}`. Results include the matching text, source filename, page number when available, and vector distance. Answer generation and SSE streaming are the next layer.
+
 RabbitMQ publishes `document.uploaded.v1` events to the durable `policy.events` exchange and `policy.document-ingestion` queue. Start the ingestion worker locally with `python worker.py` from the `backend` directory.
 
 ## Roadmap slices

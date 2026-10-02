@@ -37,3 +37,9 @@ def test_document_retry_requires_admin_authentication() -> None:
     response = client.post("/api/v1/documents/11111111-1111-1111-1111-111111111111/retry")
 
     assert response.status_code == 401
+
+
+def test_policy_search_requires_authentication() -> None:
+    response = client.post("/api/v1/questions/search", json={"query": "remote work"})
+
+    assert response.status_code == 401
