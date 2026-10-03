@@ -10,7 +10,7 @@ The planned application has two roles:
 
 - `admin`: uploads documents, monitors indexing, retries failed ingestion, and runs evaluations.
 - `employee`: signs in, asks policy questions, reads cited answers, and submits feedback.
-
+ 
 The project uses FastAPI for APIs, React and TypeScript for the web interface, PostgreSQL with pgvector for document retrieval, RabbitMQ for asynchronous ingestion, Keycloak for OAuth/OIDC authentication, and LangGraph for the bounded answer workflow. The current setup is local-first and does not require a paid AI provider until model-based features are enabled.
 
 ## Local setup

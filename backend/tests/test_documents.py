@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from app.answering import build_grounded_answer
+from app.answering import build_grounded_answer, run_answer_workflow
 from app.events import DocumentUploadedEvent
 from app.main import app
 
@@ -51,3 +51,25 @@ def test_answering_refuses_without_evidence() -> None:
 
     assert route == "fallback"
     assert "could not find enough evidence" in answer
+
+
+def test_answer_workflow_tracks_bounded_steps() -> None:
+    workflow = run_answer_workflow(
+        "remote work",
+        [
+            type(
+                "Result",
+                (),
+                {"content": "Remote work is allowed for eligible employees.", "distance": 0.42},
+            )(),
+            type(
+                "Result",
+                (),
+                {"content": "Employees may work remotely two days per week.", "distance": 0.64},
+            )(),
+        ],
+    )
+
+    assert workflow["route"] == "extractive"
+    assert workflow["steps"] == ["retrieve", "grade_context", "generate_answer", "verify_answer"]
+    assert "Remote work" in workflow["answer"]
