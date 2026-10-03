@@ -18,6 +18,14 @@ export type SearchResult = {
   distance: number;
 };
 
+export type AnswerResponse = {
+  question_id: string;
+  answer_id: string;
+  answer: string;
+  route: string;
+  citations: SearchResult[];
+};
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const token = getAccessToken();
   const response = await fetch(`${apiUrl}${path}`, {
@@ -51,6 +59,14 @@ export function retryDocument(documentId: string): Promise<DocumentRecord> {
 
 export function searchPolicy(query: string): Promise<SearchResult[]> {
   return request<SearchResult[]>("/api/v1/questions/search", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query, limit: 5 }),
+  });
+}
+
+export function askPolicy(query: string): Promise<AnswerResponse> {
+  return request<AnswerResponse>("/api/v1/questions", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query, limit: 5 }),

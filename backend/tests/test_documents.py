@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 
+from app.answering import build_grounded_answer
 from app.events import DocumentUploadedEvent
 from app.main import app
 
@@ -43,3 +44,10 @@ def test_policy_search_requires_authentication() -> None:
     response = client.post("/api/v1/questions/search", json={"query": "remote work"})
 
     assert response.status_code == 401
+
+
+def test_answering_refuses_without_evidence() -> None:
+    answer, route = build_grounded_answer("remote work", [])
+
+    assert route == "fallback"
+    assert "could not find enough evidence" in answer
