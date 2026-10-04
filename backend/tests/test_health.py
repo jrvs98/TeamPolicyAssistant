@@ -19,6 +19,13 @@ def test_cors_allows_frontend_origin() -> None:
     assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
 
 
+def test_health_includes_request_id() -> None:
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    assert "X-Request-ID" in response.headers
+
+
 def test_readiness(monkeypatch) -> None:
     monkeypatch.setattr(main_module, "check_database", lambda: True)
     response = client.get("/ready")
