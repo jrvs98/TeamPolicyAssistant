@@ -16,10 +16,16 @@
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
-      "redirectUris": ["http://localhost:5173/*"],
-      "webOrigins": ["http://localhost:5173"],
+      "redirectUris": [
+        "http://localhost:5173/*",
+        "http://localhost:8081/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5173",
+        "http://localhost:8081"
+      ],
       "attributes": {
-        "post.logout.redirect.uris": "http://localhost:5173/*"
+        "post.logout.redirect.uris": "http://localhost:5173/* http://localhost:8081/*"
       }
     }
   ],
