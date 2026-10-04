@@ -72,3 +72,13 @@ export function askPolicy(query: string): Promise<AnswerResponse> {
     body: JSON.stringify({ query, limit: 5 }),
   });
 }
+
+export type FeedbackValue = "helpful" | "unhelpful";
+
+export function submitAnswerFeedback(answerId: string, value: FeedbackValue): Promise<{ status: string; value: string }> {
+  return request<{ status: string; value: string }>(`/api/v1/answers/${answerId}/feedback`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ value }),
+  });
+}

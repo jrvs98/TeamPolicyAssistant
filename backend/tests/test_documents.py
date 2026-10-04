@@ -53,6 +53,15 @@ def test_answering_refuses_without_evidence() -> None:
     assert "could not find enough evidence" in answer
 
 
+def test_answer_feedback_requires_authentication() -> None:
+    response = client.post(
+        "/api/v1/answers/11111111-1111-1111-1111-111111111111/feedback",
+        json={"value": "helpful"},
+    )
+
+    assert response.status_code == 401
+
+
 def test_answer_workflow_tracks_bounded_steps() -> None:
     workflow = run_answer_workflow(
         "remote work",

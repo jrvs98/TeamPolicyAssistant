@@ -1,16 +1,19 @@
-from fastapi import APIRouter, Depends
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.answering import build_grounded_answer, run_answer_workflow
 from app.auth import CurrentUser, require_authenticated
 from app.database import get_db
-from app.models import Answer, Citation, Question, User
+from app.models import Answer, Citation, Feedback, Question, User
 from app.retrieval import SearchRequest, SearchResult, search_chunks
 
 router = APIRouter(prefix="/api/v1/questions", tags=["questions"])
+answers_router = APIRouter(prefix="/api/v1/answers", tags=["answers"])
 
 
 class AnswerResponse(BaseModel):
@@ -19,6 +22,11 @@ class AnswerResponse(BaseModel):
     answer: str
     route: str
     citations: list[SearchResult]
+
+
+class FeedbackRequest(BaseModel):
+    value: str = Field(min_length=1, max_length=20)
+    comment: str | None = Field(default=None, max_length=2000)
 
 
 def _get_or_create_user(session: Session, current_user: CurrentUser) -> User:
@@ -67,6 +75,32 @@ def question_events(question_id: str) -> StreamingResponse:
         yield "event: done\ndata: completed\n\n"
 
     return StreamingResponse(stream(), media_type="text/event-stream")
+
+
+@answers_router.post("/{answer_id}/feedback")
+def submit_answer_feedback(
+    answer_id: str,
+    request: FeedbackRequest,
+    current_user: CurrentUser = Depends(require_authenticated),
+    session: Session = Depends(get_db),
+) -> dict[str, str]:
+    try:
+        parsed_answer_id = uuid.UUID(answer_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid answer id") from exc
+
+    value = request.value.lower()
+    if value not in {"helpful", "unhelpful", "up", "down", "positive", "negative"}:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Feedback value must be helpful or unhelpful")
+
+    answer = session.get(Answer, parsed_answer_id)
+    if answer is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Answer not found")
+
+    user = _get_or_create_user(session, current_user)
+    session.add(Feedback(answer_id=answer.id, user_id=user.id, value=value, comment=request.comment))
+    session.commit()
+    return {"status": "ok", "value": value}
 
 
 @router.post("/search", response_model=list[SearchResult])
