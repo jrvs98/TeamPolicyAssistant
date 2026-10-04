@@ -5,7 +5,7 @@ from app.auth import CurrentUser, require_admin, require_authenticated, require_
 from app.config import get_settings
 from app.database import check_database
 from app.documents import router as documents_router
-from app.questions import answers_router, router as questions_router
+from app.questions import admin_router, answers_router, router as questions_router
 
 settings = get_settings()
 app = FastAPI(title=settings.app_name, version="0.1.0")
@@ -19,6 +19,7 @@ app.add_middleware(
 app.include_router(documents_router)
 app.include_router(questions_router)
 app.include_router(answers_router)
+app.include_router(admin_router)
 
 
 @app.get("/health")

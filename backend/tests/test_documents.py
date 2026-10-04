@@ -62,6 +62,16 @@ def test_answer_feedback_requires_authentication() -> None:
     assert response.status_code == 401
 
 
+def test_admin_evaluation_requires_admin_authentication() -> None:
+    response = client.get("/api/v1/admin/evaluations")
+
+    assert response.status_code == 401
+
+    response = client.post("/api/v1/admin/evaluations/run")
+
+    assert response.status_code == 401
+
+
 def test_answer_workflow_tracks_bounded_steps() -> None:
     workflow = run_answer_workflow(
         "remote work",

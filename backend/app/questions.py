@@ -7,13 +7,14 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.answering import build_grounded_answer, run_answer_workflow
-from app.auth import CurrentUser, require_authenticated
+from app.auth import CurrentUser, require_admin, require_authenticated
 from app.database import get_db
-from app.models import Answer, Citation, Feedback, Question, User
+from app.models import Answer, Citation, EvaluationCase, EvaluationResult, Feedback, Question, User
 from app.retrieval import SearchRequest, SearchResult, search_chunks
 
 router = APIRouter(prefix="/api/v1/questions", tags=["questions"])
 answers_router = APIRouter(prefix="/api/v1/answers", tags=["answers"])
+admin_router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
 
 
 class AnswerResponse(BaseModel):
@@ -27,6 +28,36 @@ class AnswerResponse(BaseModel):
 class FeedbackRequest(BaseModel):
     value: str = Field(min_length=1, max_length=20)
     comment: str | None = Field(default=None, max_length=2000)
+
+
+class EvaluationCaseResponse(BaseModel):
+    id: str
+    question: str
+    expected_answer: str | None = None
+    expected_document_ids: list[str] = []
+    should_refuse: bool = False
+
+
+_DEFAULT_EVALUATION_CASES = [
+    {
+        "question": "Can employees work remotely?",
+        "expected_answer": "Remote work is allowed under the policy.",
+        "expected_document_ids": [],
+        "should_refuse": False,
+    },
+    {
+        "question": "What is the expense reimbursement limit?",
+        "expected_answer": "The policy defines the reimbursement cap.",
+        "expected_document_ids": [],
+        "should_refuse": False,
+    },
+    {
+        "question": "What is the policy on alien life?",
+        "expected_answer": None,
+        "expected_document_ids": [],
+        "should_refuse": True,
+    },
+]
 
 
 def _get_or_create_user(session: Session, current_user: CurrentUser) -> User:
@@ -101,6 +132,65 @@ def submit_answer_feedback(
     session.add(Feedback(answer_id=answer.id, user_id=user.id, value=value, comment=request.comment))
     session.commit()
     return {"status": "ok", "value": value}
+
+
+@admin_router.get("/evaluations", response_model=list[EvaluationCaseResponse])
+def list_evaluations(
+    _: CurrentUser = Depends(require_admin),
+    session: Session = Depends(get_db),
+) -> list[EvaluationCaseResponse]:
+    cases = session.scalars(select(EvaluationCase).order_by(EvaluationCase.question.asc())).all()
+    if not cases:
+        for payload in _DEFAULT_EVALUATION_CASES:
+            session.add(EvaluationCase(**payload))
+        session.commit()
+        cases = session.scalars(select(EvaluationCase).order_by(EvaluationCase.question.asc())).all()
+    return [
+        EvaluationCaseResponse(
+            id=str(case.id),
+            question=case.question,
+            expected_answer=case.expected_answer,
+            expected_document_ids=[str(item) for item in case.expected_document_ids],
+            should_refuse=case.should_refuse,
+        )
+        for case in cases
+    ]
+
+
+@admin_router.post("/evaluations/run")
+def run_evaluations(
+    _: CurrentUser = Depends(require_admin),
+    session: Session = Depends(get_db),
+) -> dict[str, object]:
+    cases = session.scalars(select(EvaluationCase).order_by(EvaluationCase.question.asc())).all()
+    if not cases:
+        for payload in _DEFAULT_EVALUATION_CASES:
+            session.add(EvaluationCase(**payload))
+        session.commit()
+        cases = session.scalars(select(EvaluationCase).order_by(EvaluationCase.question.asc())).all()
+
+    results: list[dict[str, object]] = []
+    passed_cases = 0
+    for case in cases:
+        hits = search_chunks(session, case.question, limit=5)
+        retrieval_hit = bool(hits)
+        refusal_ok = case.should_refuse == (not retrieval_hit or hits[0].distance > 0.95)
+        score = 1.0 if refusal_ok and (case.should_refuse or retrieval_hit) else 0.5 if retrieval_hit else 0.0
+        if score >= 0.5:
+            passed_cases += 1
+        result = EvaluationResult(
+            case_id=case.id,
+            metrics={
+                "retrieval_hit": retrieval_hit,
+                "refusal_ok": refusal_ok,
+                "score": round(score, 2),
+            },
+        )
+        session.add(result)
+        results.append({"question": case.question, "score": round(score, 2), "passed": score >= 0.5})
+    session.commit()
+    average_score = round(sum(float(item["score"]) for item in results) / len(results), 2) if results else 0.0
+    return {"cases_run": len(results), "passed_cases": passed_cases, "average_score": average_score, "results": results}
 
 
 @router.post("/search", response_model=list[SearchResult])
